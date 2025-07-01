@@ -1,0 +1,44 @@
+# ===================================================================
+# Конфигурация для создания кастомной ASR-модели
+# на базе Whisper-large-v3 с последующей "Turbo" оптимизацией
+# ===================================================================
+
+# --- 1. ПУТИ К ДАННЫМ ---
+paths:
+  data_json: "my_dataset.json"
+
+# --- 2. ВЫБОР МОДЕЛИ ---
+model:
+  # ВАЖНО: Мы начинаем с оригинальной, обучаемой версии large-v3.
+  # Наша цель - дообучить её и ПОТОМ сделать из неё "Turbo"-версию.
+  base_model: "openai/whisper-large-v3"
+  
+  language: "russian"
+  task: "transcribe"
+
+# --- 3. ПАРАМЕТРЫ ДООБУЧЕНИЯ (FINE-TUNING) ---
+training:
+  # ВНИМАНИЕ: large-v3 требует ОЧЕНЬ много видеопамяти (>24GB VRAM).
+  # Если у вас возникает ошибка "CUDA out of memory", сделайте следующее:
+  # 1. Уменьшите per_device_train_batch_size до 1.
+  # 2. Увеличьте gradient_accumulation_steps, чтобы сохранить эффективный батч
+  #    (например, если batch_size=1, а accumulation=16, то эффективный батч будет 16).
+  args:
+    per_device_train_batch_size: 2    # Попробуйте 1, если не хватает памяти
+    gradient_accumulation_steps: 8  # Увеличьте, если уменьшили batch_size
+    learning_rate: 1.0e-5
+    warmup_steps: 100
+    num_train_epochs: 3             # Для реальной задачи может потребоваться 5-10
+    evaluation_strategy: "epoch"
+    save_strategy: "epoch"
+    fp16: true
+    logging_steps: 25
+    load_best_model_at_end: true
+    metric_for_best_model: "wer"
+    greater_is_better: false
+
+# --- 4. ПАРАМЕТРЫ ОПТИМИЗАЦИИ (Создание "Turbo") ---
+optimization:
+  # 'int8' - максимальная скорость и сжатие
+  # 'float16' - чуть менее агрессивное сжатие
+  quantization: "int8"

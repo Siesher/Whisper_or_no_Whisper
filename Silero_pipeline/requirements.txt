@@ -1,0 +1,9 @@
+torch
+pyyaml
+soundfile
+librosa
+tqdm
+pandas
+scikit-learn
+# Библиотека для работы с git-репозиториями из Python
+GitPython

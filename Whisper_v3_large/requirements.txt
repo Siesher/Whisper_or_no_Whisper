@@ -1,0 +1,11 @@
+torch
+transformers
+datasets
+accelerate
+evaluate
+jiwer
+soundfile
+librosa
+ctranslate2
+insanely-fast-whisper
+pyyaml
