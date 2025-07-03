@@ -1,0 +1,92 @@
+# config.yaml
+
+pipeline_control:
+  run_data_prep: true
+  run_llm_dpo_data_prep: true
+  run_whisper_training: true
+  run_silero_training: true
+  run_llm_finetuning: true
+  run_evaluation: true
+  
+wandb:
+  project: "advanced-asr-corrector"
+  entity: "YOUR_WANDB_USERNAME" # !!! ЗАМЕНИТЕ НА ВАШ ЛОГИН В WANDB !!!
+
+paths:
+  source_csv: "clear_rez_transcriptions.csv"
+  audio_directory: "./audio_data/"
+  checkpoints_dir: "./.checkpoints"
+  prepared_data_dir: "./prepared_data"
+  llm_dpo_data_path: "./prepared_data/llm_dpo_dataset"
+  
+  # Пути для сохранения артефактов
+  whisper_finetuned_path: "./models/whisper-finetuned"
+  whisper_ct2_path: "./models/whisper-finetuned-ct2"
+  silero_finetuned_path: "./models/silero-finetuned"
+  llm_base_model_path: "./models/yagpt-base" # Куда скачается базовая LLM
+  llm_finetuned_adapter_path: "./models/yagpt-8b-lora-adapter"
+  llm_finetuned_merged_path: "./models/yagpt-8b-finetuned-merged" # Для vLLM
+
+data_prep:
+  path_column: "Путь к файлу"
+  text_column: "Расшифровка"
+  test_size: 0.1
+
+whisper_params:
+  base_model: "openai/whisper-large-v3"
+  num_proc: 8
+  training_args:
+    bf16: true
+    per_device_train_batch_size: 16
+    gradient_accumulation_steps: 2
+    learning_rate: 1.0e-5
+    warmup_steps: 200
+    max_steps: 2000
+    evaluation_strategy: "steps"
+    save_strategy: "steps"
+    predict_with_generate: true
+    save_steps: 500
+    eval_steps: 500
+    logging_steps: 25
+    load_best_model_at_end: true
+    metric_for_best_model: "wer"
+    greater_is_better: false
+    
+silero_params:
+  repo_url: "https://github.com/snakers4/silero-models.git"
+  repo_path: "./silero-models"
+  base_model_url: "https://models.silero.ai/models/jit/v4_ru_jit.pt"
+  training_params:
+    work_dir: "work_dir"
+    batch_size: 64 # На A100 можно и больше
+    num_epochs: 20
+    learning_rate: 0.0001
+    model: {in_channels: 1, out_channels: 1024}
+
+yandex_gpt_params:
+  base_model: "yandex-datasphere/yandex-gpt-5-lite-8b-pretrain"
+  max_seq_length: 1024
+  # Шаблон для DPO датасета (будет обернут в формат чата)
+  dpo_prompt_template: "Исправь ошибки в следующей транскрипции: {instruction}"
+  
+  lora_config:
+    r: 16
+    lora_alpha: 32
+    lora_dropout: 0.05
+    bias: "none"
+    task_type: "CAUSAL_LM"
+    target_modules: ["q_proj", "v_proj", "k_proj", "o_proj"]
+  
+  dpo_training_args:
+    output_dir: "./models/yagpt-8b-lora-adapter" # Временный путь для адаптера
+    per_device_train_batch_size: 2
+    gradient_accumulation_steps: 4
+    learning_rate: 2.0e-5
+    num_train_epochs: 2 # DPO требует меньше эпох
+    logging_steps: 10
+    save_strategy: "epoch"
+    bf16: true
+    report_to: "wandb"
+    
+vllm_params:
+  tensor_parallel_size: 2 # Использовать обе A100 для инференса

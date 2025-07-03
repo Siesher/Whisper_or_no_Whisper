@@ -1,0 +1,20 @@
+# requirements.txt
+torch --index-url https://download.pytorch.org/whl/cu121
+pandas
+pyyaml
+gitpython
+tqdm
+scikit-learn
+wandb
+evaluate
+datasets
+transformers
+accelerate
+bitsandbytes
+scipy
+ctranslate2
+faster-whisper
+py-rover
+peft
+trl
+vllm # Убедитесь, что ваша версия CUDA совместима
