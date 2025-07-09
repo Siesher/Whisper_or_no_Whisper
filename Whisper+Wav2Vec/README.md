@@ -76,32 +76,3 @@ accelerate config
 
 python scripts/inference/run_ensemble.py
 Первый запуск этого скрипта потребует времени на скачивание модели YandexGPT. Последующие запуски будут быстрее.
-</details>
-
-#### 2. `setup_environment.sh` (Скрипт установки)
-<details>
-<summary><code>setup_environment.sh</code></summary>
-
-bash
-#!/bin/bash
-
-echo "Шаг 1/2: Установка PyTorch для CUDA 11.8..."
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-
-echo "Шаг 2/2: Установка остальных зависимостей из requirements.txt..."
-pip install -r requirements.txt
-
-echo "Среда успешно настроена."
-#### 3. `requirements.txt` (Зависимости)
-<details>
-<summary><code>requirements.txt</code></summary>
-
-text
-transformers
-datasets
-pandas
-evaluate
-jiwer
-accelerate
-sentencepiece
-librosa
