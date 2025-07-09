@@ -1,0 +1,9 @@
+text
+transformers
+datasets
+pandas
+evaluate
+jiwer
+accelerate
+sentencepiece
+librosa
