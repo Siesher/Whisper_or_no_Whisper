@@ -1,6 +1,6 @@
 <div align="center">
 
-![Whisper or no Whisper Banner](figures/banner.svg)
+<img src="figures/banner.svg" alt="Whisper or no Whisper Banner" width="100%">
 
 # 🎙️ Whisper or no Whisper
 
